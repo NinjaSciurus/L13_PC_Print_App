@@ -11,11 +11,9 @@ It grew out of a reverse‑engineering session — the full protocol write‑up 
 
 ## Screenshots
 
-> _Placeholders — drop the images into `docs/screenshots/` and they'll render here._
-
 | Main window | Border / edge test | Printer info |
 |---|---|---|
-| ![Main window](docs/screenshots/main-window.png) | ![Border test](docs/screenshots/preview-border.png) | ![Printer info](docs/screenshots/printer-info.png) |
+| <img src="docs/screenshots/main-window.png" alt="Main window" maxheight="480"> | <img src="docs/screenshots/preview-border.png" alt="Border test" maxheight="480"> | <img src="docs/screenshots/printer-info.png" alt="Printer info" maxheight="480"> |
 
 ## Features
 
@@ -63,7 +61,8 @@ holds its pairing info — this is how the official app discovers it. Point your
 phone's camera / any QR scanner at it; the decoded text contains the MAC (look for
 the `55:55:09:22:3F:9B`‑style value). Type that into the app.
 
-![Printer QR label](docs/screenshots/qr-label.png)
+<img src="docs/screenshots/qr-label.jpeg" alt="Printer QR label with iPhone camera" height="480">
+<img src="docs/screenshots/qr-label-2.jpeg" alt="Printer QR label with iPhone QR code reader" height="480">
 
 ### B. Windows PowerShell (if the printer is already paired)
 
