@@ -46,6 +46,11 @@ public sealed class MainForm : Form
     public MainForm()
     {
         Text = "L13 Label Printer";
+        using (var iconStream = typeof(MainForm).Assembly.GetManifestResourceStream("app.ico"))
+        {
+            if (iconStream is not null)
+                Icon = new Icon(iconStream);
+        }
         // Tall enough to show the whole left-hand settings column at 100% DPI
         // (the panel still scrolls if a higher DPI scales the controls up).
         MinimumSize = new Size(960, 620);

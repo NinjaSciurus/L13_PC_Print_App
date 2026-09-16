@@ -8,12 +8,20 @@
     <LangVersion>latest</LangVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <RootNamespace>L13.App</RootNamespace>
     <AssemblyName>L13Printer</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\L13.Core\L13.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Embed the icon so the window/taskbar can use the full multi-resolution set. -->
+  <ItemGroup>
+    <EmbeddedResource Include="app.ico">
+      <LogicalName>app.ico</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
