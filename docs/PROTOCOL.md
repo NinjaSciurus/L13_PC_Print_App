@@ -74,7 +74,7 @@ adds ~2 s latency, so it is off by default.
 little-endian (`0C 00` = 12 = 96 px), `yL yH` = height in **rows** little-endian.
 Each byte is 8 pixels, **MSB = leftmost dot**, `1` = black.
 
-## Label-gap detection (the interesting bit)
+## Label-gap detection
 
 - The IR sensor is a **paper-present** sensor only (`10 FF 40` bit `0x04`); there is
   no calibrate-before-print handshake. If a label is mis-positioned when you start,
@@ -84,10 +84,14 @@ Each byte is 8 pixels, **MSB = leftmost dot**, `1` = black.
   = `4F 4B`). `10 0C` is a no-op on V3.08.
 - The seek stops with the next border **under the head**. The tear edge is a few mm
   downstream, so a small extra feed (`1B 4A nn`, ~6 mm here) advances it to tearable.
-- The hardware **cannot reverse-feed** (`1F 11 11 nn` doesn't work), so you cannot
-  have both "border exactly at the tear edge" and "zero offset on the next print" —
-  a tear feed shifts the next print down by the same amount. Default behaviour:
-  seek + a 6 mm tear feed, matching the vendor iOS app on stock labels.
+- The firmware **retracts the paper a little before each print** (a visible
+  pull-back) to re-seat the label at the print line — so the device *can* reverse-feed,
+  even though the sibling SDK's reverse-feed command (`1F 11 11 nn`) drew no response
+  on V3.08 and this project never drives retraction itself. Combined with the
+  post-print border seek (which re-references the actual gap each cycle), this is why
+  **seek + a 6 mm tear feed** prints cleanly on stock labels without a creeping offset:
+  the tear feed advances the finished label to tearable, and the next cycle's seek +
+  retract re-seat the following label. This matches the vendor iOS app.
 
 ## Orientation
 
