@@ -18,7 +18,7 @@ hardware unless noted.
 - Print head: **96 dots wide = 12 bytes/row**, **203 DPI** (8 dots/mm) ≈ 12 mm.
 - Stock labels are 14 × 30 mm, but **30 mm is the pitch** (body + inter-label gap).
   The printable **body is ~28 mm ≈ 224 dots**.
-- The 96-dot head sits ~1 mm inside each 14 mm side edge — fixed hardware.
+- The 96-dot head sits ~1 mm inside each 14 mm side edge (fixed hardware).
 
 ## Info / status queries
 
@@ -32,7 +32,7 @@ hardware unless noted.
 | `10 FF 11`    | Density / print params | 3 bytes, e.g. `01 0A 01` |
 | `10 FF 13`    | Auto-shutdown minutes  | e.g. `14` = 20 min |
 
-`10 FF 20 F3` does **not** respond — it is not a MAC query.
+`10 FF 20 F3` does **not** respond (it is not a MAC query).
 
 ### Status bitmask (`10 FF 40`)
 
@@ -70,7 +70,7 @@ adds ~2 s latency, so it is off by default.
 
 ### Raster format (`GS v 0`)
 
-`1D 76 30 mm xL xH yL yH <data>` — `mm` = 0 (normal), `xL xH` = width in **bytes**
+`1D 76 30 mm xL xH yL yH <data>`, where `mm` = 0 (normal), `xL xH` = width in **bytes**
 little-endian (`0C 00` = 12 = 96 px), `yL yH` = height in **rows** little-endian.
 Each byte is 8 pixels, **MSB = leftmost dot**, `1` = black.
 
@@ -79,13 +79,13 @@ Each byte is 8 pixels, **MSB = leftmost dot**, `1` = black.
 - The IR sensor is a **paper-present** sensor only (`10 FF 40` bit `0x04`); there is
   no calibrate-before-print handshake. If a label is mis-positioned when you start,
   it prints wherever the paper happens to be.
-- **`0C` (and `1D 0C`) seek to the next label border** using the sensor — confirmed
+- **`0C` (and `1D 0C`) seek to the next label border** using the sensor. Confirmed
   by mis-aligning a label and watching it land exactly on the border (returns `OK`
   = `4F 4B`). `10 0C` is a no-op on V3.08.
 - The seek stops with the next border **under the head**. The tear edge is a few mm
   downstream, so a small extra feed (`1B 4A nn`, ~6 mm here) advances it to tearable.
 - The firmware **retracts the paper a little before each print** (a visible
-  pull-back) to re-seat the label at the print line — so the device *can* reverse-feed,
+  pull-back) to re-seat the label at the print line, so the device *can* reverse-feed,
   even though the sibling SDK's reverse-feed command (`1F 11 11 nn`) drew no response
   on V3.08 and this project never drives retraction itself. Combined with the
   post-print border seek (which re-references the actual gap each cycle), this is why
@@ -99,5 +99,5 @@ The head prints one 96-dot row at a time as paper feeds. Text is rendered uprigh
 then rotated 270° so its height fills the 96-dot head and the word runs along the
 label length. Empirically (from a known test pattern) row 0 = the leading/exit edge
 and dot 0 = the far side; rotating the packed bitmap back 90° CW reproduces the
-physical label held with the first-out edge on the right — which is how the preview
+physical label held with the first-out edge on the right, which is how the preview
 is drawn.

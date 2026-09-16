@@ -1,13 +1,13 @@
 # L13 Label Printer
 
 A small Windows desktop app for the **Luck Jingle L13 / DP-L13** mini label maker
-(sold under many names — AiYin L13, SilverCrest 5890, Tronic 6326, "Fichero" / "Pocket Printer"
-egg printer) with firmware V3.08. It talks to the printer directly over **Classic Bluetooth (RFCOMM)**
-— no vendor app required — renders text or an image to the printer's 96‑dot head,
+(sold under many names: AiYin L13, SilverCrest 5890, Tronic 6326, "Fichero" / "Pocket Printer"
+egg printer) with firmware V3.08. It talks to the printer directly over **Classic Bluetooth (RFCOMM)** so
+no vendor app is required. It renders text or an image to the printer's 96‑dot head,
 and prints it with a live preview and progress bar.
 
-It grew out of a reverse‑engineering session — the full protocol write‑up is in
-[`docs/PROTOCOL.md`](docs/PROTOCOL.md). In great parts vibe-coded using Opus 4.8 (Extra).
+It grew out of a reverse‑engineering session. The full protocol write‑up is in
+[`docs/PROTOCOL.md`](docs/PROTOCOL.md). This project is in great parts vibe-coded using Opus 4.8 (Extra).
 
 ## Screenshots
 
@@ -17,17 +17,17 @@ It grew out of a reverse‑engineering session — the full protocol write‑up 
 
 ## Features
 
-- **Live preview** — WYSIWYG, showing the label as it prints (held with the edge that exits first on the right).
-- **Auto‑fit typography** — largest font that fits, never below 12 px; text that won't fit on one line wraps to two.
-- **Centering** — horizontal and vertical, on the printable label body.
-- **Border test** — draw a rectangle around the whole printable area to check edge coverage.
-- **Image / logo mode** — scaled, centered and thresholded to 1‑bit.
-- **Background printing** — responsive UI with a progress bar and cancel.
-- **Printer info** — model, firmware, serial, battery and status.
+- **Live preview**: WYSIWYG, showing the label as it prints (held with the edge that exits first on the right).
+- **Auto‑fit typography**:  largest font that fits, never below 12 px; text that won't fit on one line wraps to two.
+- **Centering**:  horizontal and vertical, on the printable label body.
+- **Border test**:  draw a rectangle around the whole printable area to check edge coverage.
+- **Image / logo mode**:  scaled, centered and thresholded to 1‑bit.
+- **Background printing**:  responsive UI with a progress bar and cancel.
+- **Printer info**:  model, firmware, serial, battery and status.
 
 ## Download
 
-Grab the latest build from the [**Releases**](../../releases/latest) page — unzip
+Grab the latest build from the [**Releases**](../../releases/latest) page, unzip
 and run `L13Printer.exe`. It's self-contained, so **no .NET install is required**.
 
 > On first launch, Windows SmartScreen may warn about an "unknown publisher"
@@ -35,9 +35,9 @@ and run `L13Printer.exe`. It's self-contained, so **no .NET install is required*
 
 ## Requirements
 
-- **To run the release:** Windows 10/11 (x64) — nothing else; the download bundles the runtime.
+- **To run the release:** Windows 10/11 (x64). Nothing else; the download bundles the runtime.
 - **To build from source:** [.NET 10 SDK](https://dotnet.microsoft.com/download); Visual Studio 2026 optional (the solution uses the `.slnx` format).
-- A Bluetooth adapter (the app connects directly — no manual Windows pairing needed).
+- A Bluetooth adapter (the app connects directly, no manual Windows pairing needed).
 
 ## Build & run
 
@@ -56,15 +56,15 @@ the **Printer MAC** field; both `55:55:09:22:3F:9B` and `555509223F9B` are accep
 
 You do **not** need to pair the printer in Windows first. The app opens its own
 RFCOMM connection and Windows pairs the device automatically on the first
-connection (accept the pairing prompt if one appears) — the same way the vendor
-app connects. Just supply the MAC.
+connection (accept the pairing prompt if one appears), the same way the vendor
+app connects, you just supply the MAC.
 
 Get the MAC with any of these:
 
 ### A. Scan the printer's QR code (no pairing needed)
 
 Press the printer's button **twice**: it prints a small label with a QR code that
-holds its pairing info — this is how the official app discovers it. Point your
+holds its pairing info (this is how the official app discovers it). Point your
 phone's camera / any QR scanner at it; the decoded text contains the MAC (look for
 the `55:55:09:22:3F:9B`‑style value). Type that into the app.
 
@@ -90,13 +90,13 @@ Property: **Bluetooth device address**._
 
 ## Usage
 
-1. Enter your printer's MAC and click **Printer info** to confirm the connection. On the very first connection Windows may show a pairing prompt — accept it.
+1. Enter your printer's MAC and click **Printer info** to confirm the connection. On the very first connection Windows may show a pairing prompt for you to accept.
 2. Type your text (or pick an image), adjust font / rotation / length as needed.
 3. Watch the preview; when it looks right, click **Print**.
 
 Notes on the label geometry:
 
-- The head is **96 dots (~12 mm)** wide, which sits ~1 mm inside each edge of a 14 mm label — this is fixed hardware.
+- The head is **96 dots (~12 mm)** wide, which sits ~1 mm inside each edge of a 14 mm label (this is fixed hardware).
 - **Body length** defaults to 28 mm (the printable body; 30 mm labels count the inter‑label gap in the pitch).
 - After printing, the firmware **seeks to the next label border** (IR gap sensor); an **eject** feed (default 6 mm) advances it to the tear edge.
 
@@ -141,5 +141,6 @@ product names are trademarks of their respective owners.
 
 ## License
 
-Released into the public domain under **[The Unlicense](LICENSE)** — do whatever
-you like with it.
+Released into the public domain under **[The Unlicense](LICENSE)**. Do whatever
+you like with it. Give a present to the two authors atctwo and 0xMH if you find this useful, 
+I can't claim any credit for their work.
