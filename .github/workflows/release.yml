@@ -1,0 +1,42 @@
+name: release
+
+# Build a self-contained Windows exe and attach it to a GitHub Release
+# whenever a version tag (e.g. v1.0.0) is pushed:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write        # required to create the Release and upload assets
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish (self-contained, single file)
+        run: >
+          dotnet publish src/L13.App/L13.App.csproj -c Release -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -o publish
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Remove-Item publish/*.pdb -ErrorAction Ignore
+          Compress-Archive -Path publish/* -DestinationPath "L13Printer-${{ github.ref_name }}-win-x64.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: L13Printer-*.zip
+          generate_release_notes: true

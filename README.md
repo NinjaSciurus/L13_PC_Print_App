@@ -25,12 +25,19 @@ It grew out of a reverse‑engineering session — the full protocol write‑up 
 - **Background printing** — responsive UI with a progress bar and cancel.
 - **Printer info** — model, firmware, serial, battery and status.
 
+## Download
+
+Grab the latest build from the [**Releases**](../../releases/latest) page — unzip
+and run `L13Printer.exe`. It's self-contained, so **no .NET install is required**.
+
+> On first launch, Windows SmartScreen may warn about an "unknown publisher"
+> (the build isn't code-signed). Click **More info → Run anyway**.
+
 ## Requirements
 
-- Windows 10/11
-- [.NET 10 SDK](https://dotnet.microsoft.com/download) (to build) or the .NET 10 Desktop Runtime (to run a published build)
-- Visual Studio 2026 (optional — the solution uses the `.slnx` format)
-- A Bluetooth adapter (the app connects directly — no manual Windows pairing needed)
+- **To run the release:** Windows 10/11 (x64) — nothing else; the download bundles the runtime.
+- **To build from source:** [.NET 10 SDK](https://dotnet.microsoft.com/download); Visual Studio 2026 optional (the solution uses the `.slnx` format).
+- A Bluetooth adapter (the app connects directly — no manual Windows pairing needed).
 
 ## Build & run
 
