@@ -1,0 +1,52 @@
+# ---- .NET / Visual Studio ----
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vscode/
+
+# Rider / ReSharper
+.idea/
+*.DotSettings.user
+_ReSharper*/
+
+# Build / test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.binlog
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+
+# OS cruft
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# App output samples (rendered previews)
+L13_preview.png

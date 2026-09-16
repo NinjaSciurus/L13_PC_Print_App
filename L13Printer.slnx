@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/L13.Core/L13.Core.csproj" />
+    <Project Path="src/L13.App/L13.App.csproj" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="docs/PROTOCOL.md" />
+    <File Path="README.md" />
+  </Folder>
+</Solution>
