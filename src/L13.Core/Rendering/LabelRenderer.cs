@@ -55,37 +55,23 @@ public static class LabelRenderer
         using var mg = Graphics.FromImage(measureBmp);
         mg.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-        const double probe = 100.0;
-        string[] lines;
+        // Explicit line breaks define paragraphs; long paragraphs get word-wrapped.
+        string[] paragraphs = SplitInputLines(o.Text);
         double px;
+        string[] lines;
 
-        using (var probeFont = new Font(o.FontName, (float)probe, style, GraphicsUnit.Pixel))
+        if (o.FontSize > 0)
         {
-            double probeH = mg.MeasureString("Ag", probeFont, PointF.Empty, fmt).Height;
-
-            if (o.FontSize > 0)
-            {
-                lines = [o.Text];
-                px = o.FontSize;
-            }
-            else
-            {
-                lines = [o.Text];
-                px = FitPx(mg, lines, probeFont, probe, probeH, availLen, availH, o.LineGapDots, fmt);
-
-                if (px < o.MinFontPx)
-                {
-                    var split = SplitMiddle(o.Text);
-                    if (split is not null)
-                    {
-                        double px2 = FitPx(mg, split, probeFont, probe, probeH, availLen, availH, o.LineGapDots, fmt);
-                        if (px2 >= px) { lines = split; px = px2; }
-                    }
-                }
-
-                if (px < o.MinFontPx)
-                    px = o.MinFontPx; // clamp; may overflow the body (caller/UI can warn)
-            }
+            px = o.FontSize;
+            using var fixedFont = new Font(o.FontName, (float)px, style, GraphicsUnit.Pixel);
+            lines = WrapParagraphs(mg, paragraphs, fixedFont, fmt, availLen).ToArray();
+        }
+        else
+        {
+            // Largest size at which the word-wrapped block still fits the height.
+            // Every wrapped line already fits the width, so nothing can overrun.
+            px = FitWrapped(mg, paragraphs, o.FontName, style, fmt,
+                            availLen, availH, o.LineGapDots, o.MinFontPx, availH, out lines);
         }
 
         lineCount = lines.Length;
@@ -149,46 +135,96 @@ public static class LabelRenderer
         return canvas;
     }
 
-    private static double FitPx(
-        Graphics g, string[] lines, Font probeFont, double probeSize, double probeH,
-        double availLen, double availH, int lineGap, StringFormat fmt)
+    /// <summary>
+    /// Binary-searches the largest pixel size in [minPx, maxPx] at which the input,
+    /// word-wrapped to <paramref name="availLen"/>, still fits <paramref name="availH"/>
+    /// tall. Returns the size and the wrapped display lines at that size.
+    /// </summary>
+    private static double FitWrapped(Graphics g, string[] paragraphs, string fontName, FontStyle style,
+                                     StringFormat fmt, double availLen, double availH, int lineGap,
+                                     double minPx, double maxPx, out string[] wrapped)
     {
-        int n = lines.Length;
-        double wProbe = Math.Max(1, MeasureMaxWidth(g, lines, probeFont, fmt));
-        double budgetH = (availH - ((n - 1) * lineGap)) / n;
-        double heightFit = probeSize * (budgetH / probeH);
-        double widthFit = probeSize * (availLen / wProbe);
-        return Math.Min(heightFit, widthFit);
-    }
+        double lo = minPx, hi = maxPx, best = minPx;
+        string[]? bestLines = null;
 
-    private static double MeasureMaxWidth(Graphics g, string[] lines, Font f, StringFormat fmt)
-    {
-        double w = 0;
-        foreach (var line in lines)
+        for (int i = 0; i < 22; i++)
         {
-            double lw = g.MeasureString(line, f, PointF.Empty, fmt).Width;
-            if (lw > w) w = lw;
+            double mid = (lo + hi) / 2.0;
+            using var f = new Font(fontName, (float)mid, style, GraphicsUnit.Pixel);
+            var lines = WrapParagraphs(g, paragraphs, f, fmt, availLen);
+            double lineH = g.MeasureString("Ag", f, PointF.Empty, fmt).Height;
+            double blockH = (lines.Count * lineH) + ((lines.Count - 1) * lineGap);
+            if (blockH <= availH) { best = mid; lo = mid; bestLines = [.. lines]; }
+            else hi = mid;
         }
-        return w;
+
+        if (bestLines is null)
+        {
+            // Too much text even at the minimum size: wrap at the floor and let it overflow.
+            using var f = new Font(fontName, (float)best, style, GraphicsUnit.Pixel);
+            bestLines = [.. WrapParagraphs(g, paragraphs, f, fmt, availLen)];
+        }
+
+        wrapped = bestLines;
+        return best;
     }
 
-    /// <summary>Splits at the space nearest the middle; null if there is no space.</summary>
-    private static string[]? SplitMiddle(string text)
+    /// <summary>
+    /// Word-wraps each paragraph to <paramref name="availLen"/> at the given font.
+    /// Words longer than the line are hard-broken by character so nothing overruns.
+    /// </summary>
+    private static List<string> WrapParagraphs(Graphics g, string[] paragraphs, Font f, StringFormat fmt, double availLen)
     {
-        var t = text.Trim();
-        var positions = new List<int>();
-        for (int i = 0; i < t.Length; i++)
-            if (t[i] == ' ') positions.Add(i);
+        double Width(string s) => g.MeasureString(s, f, PointF.Empty, fmt).Width;
 
-        if (positions.Count == 0)
-            return null;
+        var outLines = new List<string>();
+        foreach (var para in paragraphs)
+        {
+            var words = para.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length == 0) { outLines.Add(""); continue; }
 
-        double mid = t.Length / 2.0;
-        int best = positions[0];
-        foreach (var p in positions)
-            if (Math.Abs(p - mid) < Math.Abs(best - mid)) best = p;
+            var current = "";
+            foreach (var word in words)
+            {
+                while (true)
+                {
+                    var candidate = current.Length == 0 ? word : current + " " + word;
+                    if (Width(candidate) <= availLen) { current = candidate; break; }
 
-        return [t[..best].Trim(), t[(best + 1)..].Trim()];
+                    if (current.Length > 0) { outLines.Add(current); current = ""; continue; }
+
+                    // A single word wider than the line: hard-break it by characters.
+                    var piece = "";
+                    foreach (var ch in word)
+                    {
+                        if (piece.Length > 0 && Width(piece + ch) > availLen) { outLines.Add(piece); piece = ""; }
+                        piece += ch;
+                    }
+                    current = piece;
+                    break;
+                }
+            }
+            if (current.Length > 0) outLines.Add(current);
+        }
+        return outLines;
+    }
+
+    /// <summary>
+    /// Splits user input into physical lines on any newline style, trims each,
+    /// and drops blank lines (so a trailing Enter doesn't add an empty line that
+    /// throws off the font-fit and vertical centring).
+    /// </summary>
+    private static string[] SplitInputLines(string text)
+    {
+        var parts = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var lines = new List<string>();
+        foreach (var part in parts)
+        {
+            var trimmed = part.Trim();
+            if (trimmed.Length > 0)
+                lines.Add(trimmed);
+        }
+        return lines.Count > 0 ? lines.ToArray() : [text.Trim()];
     }
 
     private static Bitmap Orient(Bitmap canvas, int rotate, bool flip)

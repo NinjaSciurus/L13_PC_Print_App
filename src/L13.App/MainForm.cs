@@ -36,7 +36,8 @@ public sealed class MainForm : Form
     private readonly TextBox _txtAddr = new() { Text = "55:55:09:22:3F:9B" };
 
     // Output / actions
-    private readonly PictureBox _picPreview = new() { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+    // Light-gray surround so the white printable-area image reads as the label boundary.
+    private readonly PictureBox _picPreview = new() { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.FromArgb(220, 220, 220), BorderStyle = BorderStyle.FixedSingle };
     private readonly ProgressBar _prog = new() { Dock = DockStyle.Top, Height = 18, Minimum = 0, Maximum = 100 };
     private readonly Label _lblStatus = new() { Dock = DockStyle.Fill, Text = "Ready.", TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(4, 0, 0, 0) };
     private readonly Button _btnPrint = new() { Text = "Print", Width = 90 };
